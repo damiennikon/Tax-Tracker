@@ -1,10 +1,20 @@
-// Initialize Supabase 
-// IMPORTANT: Paste your actual Supabase URL and Key back in here!
+// --- 1. GLOBAL ERROR CATCHER ---
+// This will force mobile browsers to display background crashes on the screen
+window.onerror = function(message, source, lineno, colno, error) {
+    alert(`CRASH ON LINE ${lineno}:\n${message}`);
+    return true; 
+};
+window.addEventListener("unhandledrejection", function(event) {
+    alert(`BACKGROUND CRASH:\n${event.reason.message || event.reason}`);
+});
+
+// --- 2. INITIALIZE SUPABASE ---
+// WARNING: Ensure you do not accidentally delete the single quotes (' ') wrapping the text!
 const SUPABASE_URL = 'https://rkolzqzlbvmxdduxqccv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_imJk5ynv3BYbo6QGrw2jMA_jePw2sZb';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- UI Logic: Toll Checkbox ---
+// --- 3. UI LOGIC: TOLLS ---
 const tollCheckbox = document.getElementById('has-toll');
 const tollContainer = document.getElementById('toll-amount-container');
 const tollAmountInput = document.getElementById('toll-amount');
@@ -20,7 +30,7 @@ tollCheckbox.addEventListener('change', (e) => {
     }
 });
 
-// --- Database Logic: Save Trip ---
+// --- 4. DATABASE LOGIC: SAVE TRIP ---
 document.getElementById('trip-form').addEventListener('submit', async (e) => {
     e.preventDefault(); 
 
@@ -60,7 +70,7 @@ document.getElementById('trip-form').addEventListener('submit', async (e) => {
     submitBtn.innerText = originalText;
 });
 
-// --- Database Logic: Upload Receipt ---
+// --- 5. DATABASE LOGIC: UPLOAD RECEIPT ---
 document.getElementById('receipt-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -78,7 +88,7 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
     const submitBtn = e.target.querySelector('button');
     submitBtn.innerText = 'Uploading...';
 
-    // 1. Upload file to Supabase Storage
+    // Upload file to Storage
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `${category.replace(/\s+/g, '')}/${fileName}`;
@@ -93,12 +103,12 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
         return;
     }
 
-    // 2. Ask Supabase for the direct link
+    // Get direct link
     const { data: { publicUrl } } = supabase.storage
         .from('receipts')
         .getPublicUrl(filePath);
 
-    // 3. Save the record
+    // Save database record
     const { error: dbError } = await supabase
         .from('receipts')
         .insert([{
@@ -121,7 +131,7 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
     submitBtn.innerText = 'Upload & Save';
 });
 
-// --- View Receipts Modal Logic ---
+// --- 6. VIEW RECEIPTS MODAL LOGIC ---
 const viewBtn = document.getElementById('btn-view-receipts');
 const modal = document.getElementById('receipt-modal');
 const closeBtn = document.getElementById('close-modal');
@@ -148,14 +158,12 @@ viewBtn.addEventListener('click', async () => {
         dateList.innerHTML = '';
         
         data.forEach(receipt => {
-            // Format date to Aus standard 
             const dateObj = new Date(receipt.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // Create clickable button for each date
             const item = document.createElement('a');
             item.href = receipt.file_url;
-            item.target = "_blank"; // Opens image/PDF safely
+            item.target = "_blank"; 
             item.style.padding = "15px";
             item.style.backgroundColor = "#f8f9fa";
             item.style.border = "1px solid #dee2e6";
@@ -182,10 +190,12 @@ viewBtn.addEventListener('click', async () => {
 closeBtn.addEventListener('click', () => {
     modal.style.display = 'none';
 });
-
-// Close modal if user taps outside the white box
 window.addEventListener('click', (e) => {
     if (e.target === modal) {
         modal.style.display = 'none';
     }
 });
+
+// --- 7. HEALTH CHECK ---
+// If you see this pop-up, the script loaded perfectly without crashing!
+alert("App logic loaded successfully!");
