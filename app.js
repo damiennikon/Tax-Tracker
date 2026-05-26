@@ -156,39 +156,39 @@ viewBtn.addEventListener('click', async () => {
             const dateObj = new Date(receipt.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
+            // The unified outer card
             const row = document.createElement('div');
             row.style.display = "flex";
-            row.style.gap = "8px";
             row.style.alignItems = "center";
+            row.style.backgroundColor = "#f8f9fa";
+            row.style.border = "1px solid #dee2e6";
+            row.style.borderRadius = "8px";
+            row.style.padding = "10px 15px"; // Padding moved to the outer box
             
+            // The clickable content area
             const item = document.createElement('a');
             item.href = receipt.file_url;
             item.target = "_blank"; 
-            item.style.padding = "15px";
-            item.style.backgroundColor = "#f8f9fa";
-            item.style.border = "1px solid #dee2e6";
-            item.style.borderRadius = "8px";
-            item.style.textDecoration = "none";
-            item.style.color = "#333";
-            item.style.display = "flex";
             item.style.flex = "1";
+            item.style.display = "flex";
             item.style.justifyContent = "space-between";
             item.style.alignItems = "center";
+            item.style.textDecoration = "none";
+            item.style.color = "#333";
             item.innerHTML = `
                 <span style="font-size: 1rem;">📅 <strong>${dateStr}</strong></span> 
                 <span style="font-size: 0.85rem; color: #666; text-align: right;">${receipt.merchant}<br>$${receipt.amount}</span>
             `;
 
-            // NEW MINIMALIST DELETE BUTTON
+            // The beautifully integrated delete button
             const delBtn = document.createElement('button');
-            delBtn.innerHTML = "&times;"; // HTML code for the nice 'X'
+            delBtn.innerHTML = "&times;"; 
             delBtn.style.backgroundColor = "transparent"; 
-            delBtn.style.color = "#dc3545"; // Muted red text
+            delBtn.style.color = "#dc3545"; 
             delBtn.style.border = "none";
             delBtn.style.cursor = "pointer";
-            delBtn.style.fontSize = "28px"; // Matches the close panel size
-            delBtn.style.fontWeight = "bold";
-            delBtn.style.padding = "0 10px";
+            delBtn.style.fontSize = "26px"; 
+            delBtn.style.padding = "0 0 0 15px"; // Keeps it separated from the text
             
             delBtn.onclick = async () => {
                 if (confirm("Are you sure you want to delete this receipt?")) {
@@ -240,21 +240,22 @@ tripViewBtn.addEventListener('click', async () => {
             const dateObj = new Date(trip.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
+            // The unified outer card
             const row = document.createElement('div');
             row.style.display = "flex";
-            row.style.gap = "8px";
             row.style.alignItems = "center";
+            row.style.backgroundColor = "#f8f9fa";
+            row.style.border = "1px solid #dee2e6";
+            row.style.borderRadius = "8px";
+            row.style.padding = "10px 15px";
             
+            // The trip info area
             const infoBox = document.createElement('div');
-            infoBox.style.padding = "15px";
-            infoBox.style.backgroundColor = "#f8f9fa";
-            infoBox.style.border = "1px solid #dee2e6";
-            infoBox.style.borderRadius = "8px";
-            infoBox.style.color = "#333";
-            infoBox.style.display = "flex";
             infoBox.style.flex = "1";
+            infoBox.style.display = "flex";
             infoBox.style.justifyContent = "space-between";
             infoBox.style.alignItems = "center";
+            infoBox.style.color = "#333";
             
             let tollText = trip.has_toll ? `Toll: $${trip.toll_amount}` : `No Toll`;
             
@@ -263,16 +264,15 @@ tripViewBtn.addEventListener('click', async () => {
                 <span style="font-size: 0.85rem; color: #666; text-align: right;">${trip.total_km} km<br>${tollText}</span>
             `;
 
-            // NEW MINIMALIST DELETE BUTTON
+            // The integrated delete button
             const delBtn = document.createElement('button');
             delBtn.innerHTML = "&times;"; 
             delBtn.style.backgroundColor = "transparent"; 
             delBtn.style.color = "#dc3545"; 
             delBtn.style.border = "none";
             delBtn.style.cursor = "pointer";
-            delBtn.style.fontSize = "28px"; 
-            delBtn.style.fontWeight = "bold";
-            delBtn.style.padding = "0 10px";
+            delBtn.style.fontSize = "26px"; 
+            delBtn.style.padding = "0 0 0 15px";
             
             delBtn.onclick = async () => {
                 if (confirm("Delete this trip?")) {
