@@ -88,18 +88,22 @@
 
                 <button type="submit">Upload & Save</button>
             </form>
+
+            <button type="button" id="btn-view-receipts" style="width: 100%; margin-top: 20px; background-color: #17a2b8;">📄 View Saved Receipts</button>
         </section>
 
-        <section id="gallery-section" class="card">
-            <h2>Recent Receipts</h2>
-            <div id="receipt-list" style="display: flex; flex-direction: column; gap: 10px;">
-                <p style="color: #666;">Loading receipts...</p>
+        <div id="receipt-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);">
+            <div style="background-color: #fff; margin: 20% auto; padding: 20px; border-radius: 12px; width: 85%; max-width: 400px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+                <span id="close-modal" style="position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa;">&times;</span>
+                <h2 style="margin-top: 0; color: #333;">Saved Receipts</h2>
+                <div id="receipt-date-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px; max-height: 60vh; overflow-y: auto;">
+                    </div>
             </div>
-        </section>
+        </div>
 
     </main>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 
     <script>
         if ('serviceWorker' in navigator) {
