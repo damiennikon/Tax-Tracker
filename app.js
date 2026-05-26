@@ -8,8 +8,8 @@ window.addEventListener("unhandledrejection", function(event) {
 });
 
 // --- 2. INITIALIZE SUPABASE ---
-const SUPABASE_URL = 'https://rkolzqzlbvmxdduxqccv.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_imJk5ynv3BYbo6QGrw2jMA_jePw2sZb';
+const SUPABASE_URL = 'https://YOUR_URL_HERE.supabase.co';
+const SUPABASE_KEY = 'YOUR_KEY_HERE';
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 3. UI LOGIC: TOLLS ---
@@ -108,7 +108,7 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
     const { error: dbError } = await db
         .from('receipts')
         .insert([{
-            date: purchaseDate, // Using the manually selected date!
+            date: purchaseDate,
             merchant: merchant,
             amount: amount,
             category: category,
@@ -140,7 +140,7 @@ viewBtn.addEventListener('click', async () => {
     try {
         const { data, error } = await db
             .from('receipts')
-            .select('id, date, merchant, file_url, amount') // Added 'id' to target deletes
+            .select('id, date, merchant, file_url, amount') 
             .order('date', { ascending: false });
 
         if (error) throw error;
@@ -156,12 +156,10 @@ viewBtn.addEventListener('click', async () => {
             const dateObj = new Date(receipt.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // Container for the row
             const row = document.createElement('div');
             row.style.display = "flex";
             row.style.gap = "8px";
             
-            // The clickable link
             const item = document.createElement('a');
             item.href = receipt.file_url;
             item.target = "_blank"; 
@@ -176,19 +174,25 @@ viewBtn.addEventListener('click', async () => {
             item.style.justifyContent = "space-between";
             item.style.alignItems = "center";
             item.innerHTML = `
-                <span style="font-size: 1.1rem;">📅 <strong>${dateStr}</strong></span> 
-                <span style="font-size: 0.9rem; color: #666; text-align: right;">${receipt.merchant}<br>$${receipt.amount}</span>
+                <span style="font-size: 1rem;">📅 <strong>${dateStr}</strong></span> 
+                <span style="font-size: 0.85rem; color: #666; text-align: right;">${receipt.merchant}<br>$${receipt.amount}</span>
             `;
 
-            // The Delete Button
+            // FIXED BUTTON SIZE
             const delBtn = document.createElement('button');
             delBtn.innerText = "❌";
-            delBtn.style.padding = "0 15px";
-            delBtn.style.backgroundColor = "#dc3545"; // Red
+            delBtn.style.minWidth = "50px"; 
+            delBtn.style.width = "50px"; 
+            delBtn.style.flexShrink = "0"; 
+            delBtn.style.backgroundColor = "#dc3545"; 
             delBtn.style.color = "white";
             delBtn.style.border = "none";
             delBtn.style.borderRadius = "8px";
             delBtn.style.cursor = "pointer";
+            delBtn.style.display = "flex";
+            delBtn.style.alignItems = "center";
+            delBtn.style.justifyContent = "center";
+            delBtn.style.fontSize = "1rem";
             
             delBtn.onclick = async () => {
                 if (confirm("Are you sure you want to delete this receipt?")) {
@@ -196,7 +200,7 @@ viewBtn.addEventListener('click', async () => {
                     if (deleteError) {
                         alert("Could not delete: " + deleteError.message);
                     } else {
-                        row.remove(); // Removes it from the screen
+                        row.remove(); 
                     }
                 }
             };
@@ -258,17 +262,25 @@ tripViewBtn.addEventListener('click', async () => {
             let tollText = trip.has_toll ? `Toll: $${trip.toll_amount}` : `No Toll`;
             
             infoBox.innerHTML = `
-                <span style="font-size: 1.1rem;">🚗 <strong>${dateStr}</strong></span> 
-                <span style="font-size: 0.9rem; color: #666; text-align: right;">${trip.total_km} km<br>${tollText}</span>
+                <span style="font-size: 1rem;">🚗 <strong>${dateStr}</strong></span> 
+                <span style="font-size: 0.85rem; color: #666; text-align: right;">${trip.total_km} km<br>${tollText}</span>
             `;
 
+            // FIXED BUTTON SIZE
             const delBtn = document.createElement('button');
             delBtn.innerText = "❌";
-            delBtn.style.padding = "0 15px";
+            delBtn.style.minWidth = "50px"; 
+            delBtn.style.width = "50px"; 
+            delBtn.style.flexShrink = "0"; 
             delBtn.style.backgroundColor = "#dc3545"; 
             delBtn.style.color = "white";
             delBtn.style.border = "none";
             delBtn.style.borderRadius = "8px";
+            delBtn.style.cursor = "pointer";
+            delBtn.style.display = "flex";
+            delBtn.style.alignItems = "center";
+            delBtn.style.justifyContent = "center";
+            delBtn.style.fontSize = "1rem";
             
             delBtn.onclick = async () => {
                 if (confirm("Delete this trip?")) {
