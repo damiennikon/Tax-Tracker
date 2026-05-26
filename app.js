@@ -163,5 +163,60 @@ async function loadReceipts() {
     });
 }
 
+// --- Database Logic: Fetch and Display Receipts ---
+async function loadReceipts() {
+    const list = document.getElementById('receipt-list');
+
+    // Failsafe in case the HTML element hasn't loaded
+    if (!list) return;
+
+    try {
+        // Fetch the 5 most recent receipts
+        const { data, error } = await supabase
+            .from('receipts')
+            .select('*')
+            .order('date', { ascending: false })
+            .limit(5);
+
+        if (error) {
+            // Prints a database rejection to the screen
+            list.innerHTML = `<p style="color: red;"><b>Database Error:</b> ${error.message}</p>`;
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            list.innerHTML = '<p style="color: #666;">No receipts yet.</p>';
+            return;
+        }
+
+        // Clear the loading text
+        list.innerHTML = '';
+
+        data.forEach(receipt => {
+            const item = document.createElement('div');
+            item.style.padding = '12px';
+            item.style.border = '1px solid #ddd';
+            item.style.borderRadius = '8px';
+            item.style.backgroundColor = '#fafafa';
+            
+            // Safety check in case the amount comes back in a weird format
+            const safeAmount = parseFloat(receipt.amount) || 0;
+            const formattedAmount = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(safeAmount);
+
+            item.innerHTML = `
+                <strong style="font-size: 1.1rem; color: #333;">${receipt.merchant || 'Unknown'}</strong> 
+                <span style="float: right; font-weight: bold; color: #28a745;">${formattedAmount}</span><br>
+                <span style="font-size: 0.85rem; color: #666;">${receipt.category || 'N/A'}</span><br>
+                <a href="${receipt.file_url}" target="_blank" style="display: inline-block; margin-top: 8px; color: #007bff; text-decoration: none; font-weight: bold;">📄 View Document</a>
+            `;
+            list.appendChild(item);
+        });
+
+    } catch (err) {
+        // Prints a silent Javascript crash directly to the screen
+        list.innerHTML = `<p style="color: red;"><b>App Crash:</b> ${err.message}</p>`;
+    }
+}
+
 // Load the receipts as soon as the app starts
 loadReceipts();
