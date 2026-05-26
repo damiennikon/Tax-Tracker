@@ -69,14 +69,14 @@
                     document.getElementById('btn-camera').onclick = function() {
                         const input = document.getElementById('file-input');
                         input.accept = "image/*"; 
-                        input.setAttribute("capture", "environment"); // Forces camera
+                        input.setAttribute("capture", "environment"); 
                         input.click();
                     };
 
                     document.getElementById('btn-file').onclick = function() {
                         const input = document.getElementById('file-input');
                         input.accept = "image/*,application/pdf";
-                        input.removeAttribute("capture"); // Forces file picker
+                        input.removeAttribute("capture"); 
                         input.click();
                     };
 
@@ -89,6 +89,14 @@
                 <button type="submit">Upload & Save</button>
             </form>
         </section>
+
+        <section id="gallery-section" class="card">
+            <h2>Recent Receipts</h2>
+            <div id="receipt-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <p style="color: #666;">Loading receipts...</p>
+            </div>
+        </section>
+
     </main>
 
     <script src="app.js"></script>
