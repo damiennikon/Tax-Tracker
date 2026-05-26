@@ -103,7 +103,15 @@
 
     </main>
 
-    <script src="app.js?v=3"></script>
+        <script>
+        window.onerror = function(message, source, lineno) {
+            alert("CRASH CAUGHT!\nError: " + message + "\nLine: " + lineno);
+            return true; 
+        };
+    </script>
+
+    <script src="app.js?v=4"></script>
+
 
     <script>
         if ('serviceWorker' in navigator) {
