@@ -1,4 +1,5 @@
-// Initialize Supabase (You will get these from your Supabase Dashboard later)
+// Initialize Supabase 
+// IMPORTANT: Paste your actual Supabase URL and Key back in here!
 const SUPABASE_URL = 'https://rkolzqzlbvmxdduxqccv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_imJk5ynv3BYbo6QGrw2jMA_jePw2sZb';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -21,7 +22,7 @@ tollCheckbox.addEventListener('change', (e) => {
 
 // --- Database Logic: Save Trip ---
 document.getElementById('trip-form').addEventListener('submit', async (e) => {
-    e.preventDefault(); // Stops the page from refreshing
+    e.preventDefault(); 
     
     const startOdo = parseInt(document.getElementById('start-odo').value);
     const endOdo = parseInt(document.getElementById('end-odo').value);
@@ -32,6 +33,10 @@ document.getElementById('trip-form').addEventListener('submit', async (e) => {
         alert("End odometer must be greater than start.");
         return;
     }
+
+    const submitBtn = e.target.querySelector('button');
+    const originalText = submitBtn.innerText;
+    submitBtn.innerText = 'Saving...';
 
     const { error } = await supabase
         .from('trips')
@@ -44,12 +49,14 @@ document.getElementById('trip-form').addEventListener('submit', async (e) => {
             toll_amount: tollAmount
         }]);
 
-    if (error) alert("Error saving trip: " + error.message);
-    else {
-        alert("Trip saved successfully!");
-        e.target.reset(); // Clears the form
+    if (error) {
+        alert("Error saving trip: " + error.message);
+    } else {
+        e.target.reset(); 
         tollContainer.style.display = 'none';
     }
+    
+    submitBtn.innerText = originalText;
 });
 
 // --- Database Logic: Upload Receipt ---
@@ -62,16 +69,17 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
     const fileInput = document.getElementById('file-input');
     const file = fileInput.files[0];
 
-    if (!file) return;
+    if (!file) {
+        alert("Please select a file first.");
+        return;
+    }
     
-    // Change button text so you know it's working
     const submitBtn = e.target.querySelector('button');
     submitBtn.innerText = 'Uploading...';
 
-    // 1. Upload file to Supabase Storage (assuming bucket is named 'receipts')
+    // 1. Upload file to Supabase Storage
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
-    // Creates a folder path like: Parking/1684920392.jpg
     const filePath = `${category.replace(/\s+/g, '')}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -84,12 +92,12 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
         return;
     }
 
-    // 2. Ask Supabase for the direct link to the image we just uploaded
+    // 2. Ask Supabase for the direct link
     const { data: { publicUrl } } = supabase.storage
         .from('receipts')
         .getPublicUrl(filePath);
 
-    // 3. Save the record and the image link to the Database
+    // 3. Save the record
     const { error: dbError } = await supabase
         .from('receipts')
         .insert([{
@@ -101,11 +109,59 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
             file_type: file.type
         }]);
 
-    if (dbError) alert("Error saving record: " + dbError.message);
-    else {
-        alert("Receipt uploaded and logged!");
+    if (dbError) {
+        alert("Error saving record: " + dbError.message);
+    } else {
         e.target.reset();
+        document.getElementById('file-name-display').innerText = "No file chosen";
+        loadReceipts(); // Update the gallery instantly
     }
     
     submitBtn.innerText = 'Upload & Save';
 });
+
+// --- Database Logic: Fetch and Display Receipts ---
+async function loadReceipts() {
+    const list = document.getElementById('receipt-list');
+    
+    // Fetch the 5 most recent receipts
+    const { data, error } = await supabase
+        .from('receipts')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(5);
+
+    if (error) {
+        list.innerHTML = '<p style="color: red;">Error loading receipts.</p>';
+        return;
+    }
+
+    if (data.length === 0) {
+        list.innerHTML = '<p style="color: #666;">No receipts yet.</p>';
+        return;
+    }
+
+    list.innerHTML = '';
+
+    data.forEach(receipt => {
+        const item = document.createElement('div');
+        item.style.padding = '12px';
+        item.style.border = '1px solid #ddd';
+        item.style.borderRadius = '8px';
+        item.style.backgroundColor = '#fafafa';
+        
+        // Format to AUD
+        const formattedAmount = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(receipt.amount);
+
+        item.innerHTML = `
+            <strong style="font-size: 1.1rem; color: #333;">${receipt.merchant}</strong> 
+            <span style="float: right; font-weight: bold; color: #28a745;">${formattedAmount}</span><br>
+            <span style="font-size: 0.85rem; color: #666;">${receipt.category}</span><br>
+            <a href="${receipt.file_url}" target="_blank" style="display: inline-block; margin-top: 8px; color: #007bff; text-decoration: none; font-weight: bold;">📄 View Document</a>
+        `;
+        list.appendChild(item);
+    });
+}
+
+// Load the receipts as soon as the app starts
+loadReceipts();
