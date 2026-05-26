@@ -9,10 +9,10 @@ window.addEventListener("unhandledrejection", function(event) {
 });
 
 // --- 2. INITIALIZE SUPABASE ---
-// WARNING: Ensure you do not accidentally delete the single quotes (' ') wrapping the text!
+// Renamed to 'db' to prevent global naming collisions
 const SUPABASE_URL = 'https://rkolzqzlbvmxdduxqccv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_imJk5ynv3BYbo6QGrw2jMA_jePw2sZb';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 3. UI LOGIC: TOLLS ---
 const tollCheckbox = document.getElementById('has-toll');
@@ -48,7 +48,7 @@ document.getElementById('trip-form').addEventListener('submit', async (e) => {
     const originalText = submitBtn.innerText;
     submitBtn.innerText = 'Saving...';
 
-    const { error } = await supabase
+    const { error } = await db
         .from('trips')
         .insert([{
             date: new Date().toISOString(),
@@ -93,7 +93,7 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `${category.replace(/\s+/g, '')}/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await db.storage
         .from('receipts')
         .upload(filePath, file);
 
@@ -104,12 +104,12 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
     }
 
     // Get direct link
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = db.storage
         .from('receipts')
         .getPublicUrl(filePath);
 
     // Save database record
-    const { error: dbError } = await supabase
+    const { error: dbError } = await db
         .from('receipts')
         .insert([{
             date: new Date().toISOString(),
@@ -143,7 +143,7 @@ viewBtn.addEventListener('click', async () => {
     dateList.innerHTML = '<p style="text-align:center; color:#666;">Loading dates...</p>';
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await db
             .from('receipts')
             .select('date, merchant, file_url, amount')
             .order('date', { ascending: false });
@@ -197,5 +197,4 @@ window.addEventListener('click', (e) => {
 });
 
 // --- 7. HEALTH CHECK ---
-// If you see this pop-up, the script loaded perfectly without crashing!
 alert("App logic loaded successfully!");
