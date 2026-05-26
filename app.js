@@ -156,23 +156,22 @@ viewBtn.addEventListener('click', async () => {
             const dateObj = new Date(receipt.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // The unified outer card
-            const row = document.createElement('div');
-            row.style.display = "flex";
-            row.style.alignItems = "center";
-            row.style.backgroundColor = "#f8f9fa";
-            row.style.border = "1px solid #dee2e6";
-            row.style.borderRadius = "8px";
-            row.style.padding = "10px 15px"; // Padding moved to the outer box
+            // The container that holds everything for this row
+            const container = document.createElement('div');
+            container.style.position = "relative"; // Allows absolute positioning inside
             
-            // The clickable content area
+            // The clickable white card
             const item = document.createElement('a');
             item.href = receipt.file_url;
             item.target = "_blank"; 
-            item.style.flex = "1";
             item.style.display = "flex";
             item.style.justifyContent = "space-between";
             item.style.alignItems = "center";
+            item.style.backgroundColor = "#f8f9fa";
+            item.style.border = "1px solid #dee2e6";
+            item.style.borderRadius = "8px";
+            item.style.padding = "15px";
+            item.style.paddingRight = "35px"; // Adds extra space so text doesn't hit the X
             item.style.textDecoration = "none";
             item.style.color = "#333";
             item.innerHTML = `
@@ -180,30 +179,36 @@ viewBtn.addEventListener('click', async () => {
                 <span style="font-size: 0.85rem; color: #666; text-align: right;">${receipt.merchant}<br>$${receipt.amount}</span>
             `;
 
-            // The beautifully integrated delete button
+            // The absolutely positioned small 'X'
             const delBtn = document.createElement('button');
             delBtn.innerHTML = "&times;"; 
+            delBtn.style.position = "absolute";
+            delBtn.style.top = "5px";
+            delBtn.style.right = "8px";
             delBtn.style.backgroundColor = "transparent"; 
             delBtn.style.color = "#dc3545"; 
             delBtn.style.border = "none";
             delBtn.style.cursor = "pointer";
-            delBtn.style.fontSize = "26px"; 
-            delBtn.style.padding = "0 0 0 15px"; // Keeps it separated from the text
+            delBtn.style.fontSize = "22px"; 
+            delBtn.style.lineHeight = "1";
+            delBtn.style.padding = "5px";
             
-            delBtn.onclick = async () => {
+            delBtn.onclick = async (e) => {
+                e.preventDefault(); // Stops the click from opening the image link
+                e.stopPropagation();
                 if (confirm("Are you sure you want to delete this receipt?")) {
                     const { error: deleteError } = await db.from('receipts').delete().eq('id', receipt.id);
                     if (deleteError) {
                         alert("Could not delete: " + deleteError.message);
                     } else {
-                        row.remove(); 
+                        container.remove(); 
                     }
                 }
             };
 
-            row.appendChild(item);
-            row.appendChild(delBtn);
-            dateList.appendChild(row);
+            container.appendChild(item);
+            container.appendChild(delBtn);
+            dateList.appendChild(container);
         });
 
     } catch (err) {
@@ -240,21 +245,20 @@ tripViewBtn.addEventListener('click', async () => {
             const dateObj = new Date(trip.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // The unified outer card
-            const row = document.createElement('div');
-            row.style.display = "flex";
-            row.style.alignItems = "center";
-            row.style.backgroundColor = "#f8f9fa";
-            row.style.border = "1px solid #dee2e6";
-            row.style.borderRadius = "8px";
-            row.style.padding = "10px 15px";
+            // The container
+            const container = document.createElement('div');
+            container.style.position = "relative";
             
-            // The trip info area
+            // The white card
             const infoBox = document.createElement('div');
-            infoBox.style.flex = "1";
             infoBox.style.display = "flex";
             infoBox.style.justifyContent = "space-between";
             infoBox.style.alignItems = "center";
+            infoBox.style.backgroundColor = "#f8f9fa";
+            infoBox.style.border = "1px solid #dee2e6";
+            infoBox.style.borderRadius = "8px";
+            infoBox.style.padding = "15px";
+            infoBox.style.paddingRight = "35px"; // Extra space for X
             infoBox.style.color = "#333";
             
             let tollText = trip.has_toll ? `Toll: $${trip.toll_amount}` : `No Toll`;
@@ -264,26 +268,30 @@ tripViewBtn.addEventListener('click', async () => {
                 <span style="font-size: 0.85rem; color: #666; text-align: right;">${trip.total_km} km<br>${tollText}</span>
             `;
 
-            // The integrated delete button
+            // The absolutely positioned 'X'
             const delBtn = document.createElement('button');
             delBtn.innerHTML = "&times;"; 
+            delBtn.style.position = "absolute";
+            delBtn.style.top = "5px";
+            delBtn.style.right = "8px";
             delBtn.style.backgroundColor = "transparent"; 
             delBtn.style.color = "#dc3545"; 
             delBtn.style.border = "none";
             delBtn.style.cursor = "pointer";
-            delBtn.style.fontSize = "26px"; 
-            delBtn.style.padding = "0 0 0 15px";
+            delBtn.style.fontSize = "22px"; 
+            delBtn.style.lineHeight = "1";
+            delBtn.style.padding = "5px";
             
             delBtn.onclick = async () => {
                 if (confirm("Delete this trip?")) {
                     const { error: deleteError } = await db.from('trips').delete().eq('id', trip.id);
-                    if (!deleteError) row.remove();
+                    if (!deleteError) container.remove();
                 }
             };
 
-            row.appendChild(infoBox);
-            row.appendChild(delBtn);
-            tripList.appendChild(row);
+            container.appendChild(infoBox);
+            container.appendChild(delBtn);
+            tripList.appendChild(container);
         });
 
     } catch (err) {
