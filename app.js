@@ -159,6 +159,7 @@ viewBtn.addEventListener('click', async () => {
             const row = document.createElement('div');
             row.style.display = "flex";
             row.style.gap = "8px";
+            row.style.alignItems = "center";
             
             const item = document.createElement('a');
             item.href = receipt.file_url;
@@ -178,21 +179,16 @@ viewBtn.addEventListener('click', async () => {
                 <span style="font-size: 0.85rem; color: #666; text-align: right;">${receipt.merchant}<br>$${receipt.amount}</span>
             `;
 
-            // FIXED BUTTON SIZE
+            // NEW MINIMALIST DELETE BUTTON
             const delBtn = document.createElement('button');
-            delBtn.innerText = "❌";
-            delBtn.style.minWidth = "50px"; 
-            delBtn.style.width = "50px"; 
-            delBtn.style.flexShrink = "0"; 
-            delBtn.style.backgroundColor = "#dc3545"; 
-            delBtn.style.color = "white";
+            delBtn.innerHTML = "&times;"; // HTML code for the nice 'X'
+            delBtn.style.backgroundColor = "transparent"; 
+            delBtn.style.color = "#dc3545"; // Muted red text
             delBtn.style.border = "none";
-            delBtn.style.borderRadius = "8px";
             delBtn.style.cursor = "pointer";
-            delBtn.style.display = "flex";
-            delBtn.style.alignItems = "center";
-            delBtn.style.justifyContent = "center";
-            delBtn.style.fontSize = "1rem";
+            delBtn.style.fontSize = "28px"; // Matches the close panel size
+            delBtn.style.fontWeight = "bold";
+            delBtn.style.padding = "0 10px";
             
             delBtn.onclick = async () => {
                 if (confirm("Are you sure you want to delete this receipt?")) {
@@ -247,6 +243,7 @@ tripViewBtn.addEventListener('click', async () => {
             const row = document.createElement('div');
             row.style.display = "flex";
             row.style.gap = "8px";
+            row.style.alignItems = "center";
             
             const infoBox = document.createElement('div');
             infoBox.style.padding = "15px";
@@ -266,21 +263,16 @@ tripViewBtn.addEventListener('click', async () => {
                 <span style="font-size: 0.85rem; color: #666; text-align: right;">${trip.total_km} km<br>${tollText}</span>
             `;
 
-            // FIXED BUTTON SIZE
+            // NEW MINIMALIST DELETE BUTTON
             const delBtn = document.createElement('button');
-            delBtn.innerText = "❌";
-            delBtn.style.minWidth = "50px"; 
-            delBtn.style.width = "50px"; 
-            delBtn.style.flexShrink = "0"; 
-            delBtn.style.backgroundColor = "#dc3545"; 
-            delBtn.style.color = "white";
+            delBtn.innerHTML = "&times;"; 
+            delBtn.style.backgroundColor = "transparent"; 
+            delBtn.style.color = "#dc3545"; 
             delBtn.style.border = "none";
-            delBtn.style.borderRadius = "8px";
             delBtn.style.cursor = "pointer";
-            delBtn.style.display = "flex";
-            delBtn.style.alignItems = "center";
-            delBtn.style.justifyContent = "center";
-            delBtn.style.fontSize = "1rem";
+            delBtn.style.fontSize = "28px"; 
+            delBtn.style.fontWeight = "bold";
+            delBtn.style.padding = "0 10px";
             
             delBtn.onclick = async () => {
                 if (confirm("Delete this trip?")) {
