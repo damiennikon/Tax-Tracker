@@ -23,12 +23,12 @@ tollCheckbox.addEventListener('change', (e) => {
 // --- Database Logic: Save Trip ---
 document.getElementById('trip-form').addEventListener('submit', async (e) => {
     e.preventDefault(); 
-    
+
     const startOdo = parseInt(document.getElementById('start-odo').value);
     const endOdo = parseInt(document.getElementById('end-odo').value);
     const hasToll = tollCheckbox.checked;
     const tollAmount = hasToll ? parseFloat(tollAmountInput.value) : null;
-    
+
     if (endOdo <= startOdo) {
         alert("End odometer must be greater than start.");
         return;
@@ -54,15 +54,16 @@ document.getElementById('trip-form').addEventListener('submit', async (e) => {
     } else {
         e.target.reset(); 
         tollContainer.style.display = 'none';
+        alert('Trip saved successfully!');
     }
-    
+
     submitBtn.innerText = originalText;
 });
 
 // --- Database Logic: Upload Receipt ---
 document.getElementById('receipt-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const merchant = document.getElementById('merchant').value;
     const amount = parseFloat(document.getElementById('amount').value);
     const category = document.getElementById('category').value;
@@ -73,7 +74,7 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
         alert("Please select a file first.");
         return;
     }
-    
+
     const submitBtn = e.target.querySelector('button');
     submitBtn.innerText = 'Uploading...';
 
@@ -114,109 +115,77 @@ document.getElementById('receipt-form').addEventListener('submit', async (e) => 
     } else {
         e.target.reset();
         document.getElementById('file-name-display').innerText = "No file chosen";
-        loadReceipts(); // Update the gallery instantly
+        alert("Receipt uploaded and saved successfully!");
     }
-    
+
     submitBtn.innerText = 'Upload & Save';
 });
 
-// --- Database Logic: Fetch and Display Receipts ---
-async function loadReceipts() {
-    const list = document.getElementById('receipt-list');
-    
-    // Fetch the 5 most recent receipts
-    const { data, error } = await supabase
-        .from('receipts')
-        .select('*')
-        .order('date', { ascending: false })
-        .limit(5);
+// --- View Receipts Modal Logic ---
+const viewBtn = document.getElementById('btn-view-receipts');
+const modal = document.getElementById('receipt-modal');
+const closeBtn = document.getElementById('close-modal');
+const dateList = document.getElementById('receipt-date-list');
 
-    if (error) {
-        list.innerHTML = '<p style="color: red;">Error loading receipts.</p>';
-        return;
-    }
-
-    if (data.length === 0) {
-        list.innerHTML = '<p style="color: #666;">No receipts yet.</p>';
-        return;
-    }
-
-    list.innerHTML = '';
-
-    data.forEach(receipt => {
-        const item = document.createElement('div');
-        item.style.padding = '12px';
-        item.style.border = '1px solid #ddd';
-        item.style.borderRadius = '8px';
-        item.style.backgroundColor = '#fafafa';
-        
-        // Format to AUD
-        const formattedAmount = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(receipt.amount);
-
-        item.innerHTML = `
-            <strong style="font-size: 1.1rem; color: #333;">${receipt.merchant}</strong> 
-            <span style="float: right; font-weight: bold; color: #28a745;">${formattedAmount}</span><br>
-            <span style="font-size: 0.85rem; color: #666;">${receipt.category}</span><br>
-            <a href="${receipt.file_url}" target="_blank" style="display: inline-block; margin-top: 8px; color: #007bff; text-decoration: none; font-weight: bold;">📄 View Document</a>
-        `;
-        list.appendChild(item);
-    });
-}
-
-// --- Database Logic: Fetch and Display Receipts ---
-async function loadReceipts() {
-    const list = document.getElementById('receipt-list');
-
-    // Failsafe in case the HTML element hasn't loaded
-    if (!list) return;
+// Open modal and fetch data
+viewBtn.addEventListener('click', async () => {
+    modal.style.display = 'block';
+    dateList.innerHTML = '<p style="text-align:center; color:#666;">Loading dates...</p>';
 
     try {
-        // Fetch the 5 most recent receipts
         const { data, error } = await supabase
             .from('receipts')
-            .select('*')
-            .order('date', { ascending: false })
-            .limit(5);
+            .select('date, merchant, file_url, amount')
+            .order('date', { ascending: false });
 
-        if (error) {
-            // Prints a database rejection to the screen
-            list.innerHTML = `<p style="color: red;"><b>Database Error:</b> ${error.message}</p>`;
-            return;
-        }
+        if (error) throw error;
 
         if (!data || data.length === 0) {
-            list.innerHTML = '<p style="color: #666;">No receipts yet.</p>';
+            dateList.innerHTML = '<p style="text-align:center; color:#666;">No receipts found.</p>';
             return;
         }
 
-        // Clear the loading text
-        list.innerHTML = '';
-
+        dateList.innerHTML = '';
+        
         data.forEach(receipt => {
-            const item = document.createElement('div');
-            item.style.padding = '12px';
-            item.style.border = '1px solid #ddd';
-            item.style.borderRadius = '8px';
-            item.style.backgroundColor = '#fafafa';
+            // Format date to Aus standard 
+            const dateObj = new Date(receipt.date);
+            const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // Safety check in case the amount comes back in a weird format
-            const safeAmount = parseFloat(receipt.amount) || 0;
-            const formattedAmount = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(safeAmount);
+            // Create clickable button for each date
+            const item = document.createElement('a');
+            item.href = receipt.file_url;
+            item.target = "_blank"; // Opens image/PDF safely
+            item.style.padding = "15px";
+            item.style.backgroundColor = "#f8f9fa";
+            item.style.border = "1px solid #dee2e6";
+            item.style.borderRadius = "8px";
+            item.style.textDecoration = "none";
+            item.style.color = "#333";
+            item.style.display = "flex";
+            item.style.justifyContent = "space-between";
+            item.style.alignItems = "center";
 
             item.innerHTML = `
-                <strong style="font-size: 1.1rem; color: #333;">${receipt.merchant || 'Unknown'}</strong> 
-                <span style="float: right; font-weight: bold; color: #28a745;">${formattedAmount}</span><br>
-                <span style="font-size: 0.85rem; color: #666;">${receipt.category || 'N/A'}</span><br>
-                <a href="${receipt.file_url}" target="_blank" style="display: inline-block; margin-top: 8px; color: #007bff; text-decoration: none; font-weight: bold;">📄 View Document</a>
+                <span style="font-size: 1.1rem;">📅 <strong>${dateStr}</strong></span> 
+                <span style="font-size: 0.9rem; color: #666; text-align: right;">${receipt.merchant}<br>$${receipt.amount}</span>
             `;
-            list.appendChild(item);
+            dateList.appendChild(item);
         });
 
     } catch (err) {
-        // Prints a silent Javascript crash directly to the screen
-        list.innerHTML = `<p style="color: red;"><b>App Crash:</b> ${err.message}</p>`;
+        dateList.innerHTML = `<p style="color: red; text-align:center;">Error: ${err.message}</p>`;
     }
-}
+});
 
-// Load the receipts as soon as the app starts
-loadReceipts();
+// Close modal logic
+closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+// Close modal if user taps outside the white box
+window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
