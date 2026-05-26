@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tax Tracker PWA</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <h1>Tax Tracker</h1>
+    </header>
+
+    <main>
+        <section id="trip-section" class="card">
+            <h2>Log a Trip</h2>
+            <form id="trip-form">
+                <label>Start Odometer:</label>
+                <input type="number" id="start-odo" required>
+
+                <label>End Odometer:</label>
+                <input type="number" id="end-odo" required>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="has-toll">
+                    <label for="has-toll">Paid a toll?</label>
+                </div>
+
+                <div id="toll-amount-container" style="display: none;">
+                    <label>Toll Amount ($):</label>
+                    <input type="number" step="0.01" id="toll-amount">
+                </div>
+
+                <button type="submit">Save Trip</button>
+            </form>
+        </section>
+
+        <section id="receipt-section" class="card">
+            <h2>Upload Receipt</h2>
+            <form id="receipt-form">
+                <label>Merchant (e.g., Uber, Secure Parking):</label>
+                <input type="text" id="merchant" required>
+
+                <label>Amount ($):</label>
+                <input type="number" step="0.01" id="amount" required>
+
+                <label>Category:</label>
+                <select id="category" required>
+                    <option value="Work Purchase">Work Purchase</option>
+                    <option value="Postage">Postage</option>
+                    <option value="Parking">Parking</option>
+                </select>
+
+                <label>Attach Receipt / Invoice:</label>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="button" id="btn-camera" style="margin-top: 0; background-color: #28a745;">📷 Camera</button>
+                    <button type="button" id="btn-file" style="margin-top: 0; background-color: #6c757d;">📁 File / PDF</button>
+                </div>
+
+                <input type="file" id="file-input" style="display:none;" required>
+                <div id="file-name-display" style="text-align: center; margin-top: 15px; font-weight: bold; color: #555;">No file chosen</div>
+
+                <script>
+                    document.getElementById('btn-camera').onclick = function() {
+                        const input = document.getElementById('file-input');
+                        input.accept = "image/*"; 
+                        input.setAttribute("capture", "environment"); // Forces camera
+                        input.click();
+                    };
+
+                    document.getElementById('btn-file').onclick = function() {
+                        const input = document.getElementById('file-input');
+                        input.accept = "image/*,application/pdf";
+                        input.removeAttribute("capture"); // Forces file picker
+                        input.click();
+                    };
+
+                    document.getElementById('file-input').onchange = function(e) {
+                        const display = document.getElementById('file-name-display');
+                        display.innerText = e.target.files[0] ? e.target.files[0].name : "No file chosen";
+                    };
+                </script>
+
+                <button type="submit">Upload & Save</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered!', reg))
+                    .catch(err => console.error('Service Worker registration failed: ', err));
+            });
+        }
+    </script>
+</body>
+</html>
