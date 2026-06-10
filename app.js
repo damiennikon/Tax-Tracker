@@ -8,8 +8,8 @@ window.addEventListener("unhandledrejection", function(event) {
 });
 
 // --- 2. INITIALIZE SUPABASE ---
-const SUPABASE_URL = 'https://rkolzqzlbvmxdduxqccv.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_imJk5ynv3BYbo6QGrw2jMA_jePw2sZb';
+const SUPABASE_URL = 'https://YOUR_URL_HERE.supabase.co';
+const SUPABASE_KEY = 'YOUR_KEY_HERE';
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 3. UI LOGIC: TOLLS ---
@@ -156,14 +156,43 @@ viewBtn.addEventListener('click', async () => {
             const dateObj = new Date(receipt.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // The container that holds everything for this row
-            const container = document.createElement('div');
-            container.style.position = "relative"; // Allows absolute positioning inside
-            
-            // The clickable white card
+            // --- The Outer Flex Container ---
+            const flexContainer = document.createElement('div');
+            flexContainer.style.display = "flex";
+            flexContainer.style.alignItems = "center"; // Vertical alignment
+            flexContainer.style.gap = "15px"; // Space between X and Data Box
+            flexContainer.style.marginBottom = "12px"; // Spacing between items
+            flexContainer.style.width = "100%";
+
+            // --- The Minimalist Gray 'X' Button ---
+            // Positioned on the far left, as requested in the image.
+            const delBtn = document.createElement('button');
+            delBtn.innerHTML = "X"; // Simple X character
+            delBtn.style.backgroundColor = "transparent"; 
+            delBtn.style.color = "#aaa"; // Muted Gray as requested
+            delBtn.style.border = "none";
+            delBtn.style.cursor = "pointer";
+            delBtn.style.fontSize = "1.3rem"; // Clear, clickable size
+            delBtn.style.fontWeight = "bold";
+            delBtn.style.padding = "0"; // Muted text button
+            delBtn.style.flexShrink = "0"; // Don't allow it to get squished
+
+            delBtn.onclick = async () => {
+                if (confirm("Are you sure you want to delete this receipt mistake?")) {
+                    const { error: deleteError } = await db.from('receipts').delete().eq('id', receipt.id);
+                    if (deleteError) {
+                        alert("Could not delete: " + deleteError.message);
+                    } else {
+                        flexContainer.remove(); 
+                    }
+                }
+            };
+
+            // --- The Clickable White Card (Data Area) ---
             const item = document.createElement('a');
             item.href = receipt.file_url;
             item.target = "_blank"; 
+            item.style.flex = "1"; // Uses the rest of the available width
             item.style.display = "flex";
             item.style.justifyContent = "space-between";
             item.style.alignItems = "center";
@@ -171,7 +200,6 @@ viewBtn.addEventListener('click', async () => {
             item.style.border = "1px solid #dee2e6";
             item.style.borderRadius = "8px";
             item.style.padding = "15px";
-            item.style.paddingRight = "35px"; // Adds extra space so text doesn't hit the X
             item.style.textDecoration = "none";
             item.style.color = "#333";
             item.innerHTML = `
@@ -179,36 +207,10 @@ viewBtn.addEventListener('click', async () => {
                 <span style="font-size: 0.85rem; color: #666; text-align: right;">${receipt.merchant}<br>$${receipt.amount}</span>
             `;
 
-            // The absolutely positioned small 'X'
-            const delBtn = document.createElement('button');
-            delBtn.innerHTML = "&times;"; 
-            delBtn.style.position = "absolute";
-            delBtn.style.top = "5px";
-            delBtn.style.right = "8px";
-            delBtn.style.backgroundColor = "transparent"; 
-            delBtn.style.color = "#dc3545"; 
-            delBtn.style.border = "none";
-            delBtn.style.cursor = "pointer";
-            delBtn.style.fontSize = "22px"; 
-            delBtn.style.lineHeight = "1";
-            delBtn.style.padding = "5px";
-            
-            delBtn.onclick = async (e) => {
-                e.preventDefault(); // Stops the click from opening the image link
-                e.stopPropagation();
-                if (confirm("Are you sure you want to delete this receipt?")) {
-                    const { error: deleteError } = await db.from('receipts').delete().eq('id', receipt.id);
-                    if (deleteError) {
-                        alert("Could not delete: " + deleteError.message);
-                    } else {
-                        container.remove(); 
-                    }
-                }
-            };
-
-            container.appendChild(item);
-            container.appendChild(delBtn);
-            dateList.appendChild(container);
+            // Combine the column [X] | Column [Data]
+            flexContainer.appendChild(delBtn);
+            flexContainer.appendChild(item);
+            dateList.appendChild(flexContainer);
         });
 
     } catch (err) {
@@ -217,6 +219,7 @@ viewBtn.addEventListener('click', async () => {
 });
 
 // --- 7. VIEW TRIPS MODAL LOGIC ---
+// (We apply the same visual logic to the trips list for consistency!)
 const tripViewBtn = document.getElementById('btn-view-trips');
 const tripModal = document.getElementById('trip-modal');
 const closeTripBtn = document.getElementById('close-trip-modal');
@@ -245,12 +248,36 @@ tripViewBtn.addEventListener('click', async () => {
             const dateObj = new Date(trip.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // The container
-            const container = document.createElement('div');
-            container.style.position = "relative";
-            
-            // The white card
+            // Flex container
+            const flexContainer = document.createElement('div');
+            flexContainer.style.display = "flex";
+            flexContainer.style.alignItems = "center";
+            flexContainer.style.gap = "15px";
+            flexContainer.style.marginBottom = "12px";
+            flexContainer.style.width = "100%";
+
+            // Muted 'X' on the far left
+            const delBtn = document.createElement('button');
+            delBtn.innerHTML = "X"; 
+            delBtn.style.backgroundColor = "transparent"; 
+            delBtn.style.color = "#aaa"; 
+            delBtn.style.border = "none";
+            delBtn.style.cursor = "pointer";
+            delBtn.style.fontSize = "1.3rem"; 
+            delBtn.style.fontWeight = "bold";
+            delBtn.style.padding = "0";
+            delBtn.style.flexShrink = "0";
+
+            delBtn.onclick = async () => {
+                if (confirm("Delete this trip?")) {
+                    const { error: deleteError } = await db.from('trips').delete().eq('id', trip.id);
+                    if (!deleteError) flexContainer.remove();
+                }
+            };
+
+            // White Trip Card
             const infoBox = document.createElement('div');
+            infoBox.style.flex = "1";
             infoBox.style.display = "flex";
             infoBox.style.justifyContent = "space-between";
             infoBox.style.alignItems = "center";
@@ -258,7 +285,6 @@ tripViewBtn.addEventListener('click', async () => {
             infoBox.style.border = "1px solid #dee2e6";
             infoBox.style.borderRadius = "8px";
             infoBox.style.padding = "15px";
-            infoBox.style.paddingRight = "35px"; // Extra space for X
             infoBox.style.color = "#333";
             
             let tollText = trip.has_toll ? `Toll: $${trip.toll_amount}` : `No Toll`;
@@ -268,30 +294,9 @@ tripViewBtn.addEventListener('click', async () => {
                 <span style="font-size: 0.85rem; color: #666; text-align: right;">${trip.total_km} km<br>${tollText}</span>
             `;
 
-            // The absolutely positioned 'X'
-            const delBtn = document.createElement('button');
-            delBtn.innerHTML = "&times;"; 
-            delBtn.style.position = "absolute";
-            delBtn.style.top = "5px";
-            delBtn.style.right = "8px";
-            delBtn.style.backgroundColor = "transparent"; 
-            delBtn.style.color = "#dc3545"; 
-            delBtn.style.border = "none";
-            delBtn.style.cursor = "pointer";
-            delBtn.style.fontSize = "22px"; 
-            delBtn.style.lineHeight = "1";
-            delBtn.style.padding = "5px";
-            
-            delBtn.onclick = async () => {
-                if (confirm("Delete this trip?")) {
-                    const { error: deleteError } = await db.from('trips').delete().eq('id', trip.id);
-                    if (!deleteError) container.remove();
-                }
-            };
-
-            container.appendChild(infoBox);
-            container.appendChild(delBtn);
-            tripList.appendChild(container);
+            flexContainer.appendChild(delBtn);
+            flexContainer.appendChild(infoBox);
+            tripList.appendChild(flexContainer);
         });
 
     } catch (err) {
@@ -299,7 +304,7 @@ tripViewBtn.addEventListener('click', async () => {
     }
 });
 
-// Close Modals
+// Close Modals logic (retains &times; for panel closing)
 closeBtn.addEventListener('click', () => modal.style.display = 'none');
 closeTripBtn.addEventListener('click', () => tripModal.style.display = 'none');
 
