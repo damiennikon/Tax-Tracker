@@ -156,61 +156,67 @@ viewBtn.addEventListener('click', async () => {
             const dateObj = new Date(receipt.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // --- The Outer Flex Container ---
-            const flexContainer = document.createElement('div');
-            flexContainer.style.display = "flex";
-            flexContainer.style.alignItems = "center"; // Vertical alignment
-            flexContainer.style.gap = "15px"; // Space between X and Data Box
-            flexContainer.style.marginBottom = "12px"; // Spacing between items
-            flexContainer.style.width = "100%";
+            // --- The Outer Card ---
+            const card = document.createElement('div');
+            card.style.backgroundColor = "#fff";
+            card.style.border = "1px solid #ddd";
+            card.style.borderRadius = "8px";
+            card.style.padding = "15px";
+            card.style.display = "flex";
+            card.style.flexDirection = "column";
+            card.style.boxShadow = "0 2px 5px rgba(0,0,0,0.05)";
 
-            // --- The Minimalist Gray 'X' Button ---
-            // Positioned on the far left, as requested in the image.
+            // --- Top Row: Information ---
+            const infoRow = document.createElement('div');
+            infoRow.style.display = "flex";
+            infoRow.style.justifyContent = "space-between";
+            infoRow.innerHTML = `
+                <span style="font-size: 1.1rem; color: #333;">📅 <strong>${dateStr}</strong></span> 
+                <span style="font-size: 0.95rem; color: #666; text-align: right;">${receipt.merchant}<br><strong style="color: #28a745;">$${receipt.amount}</strong></span>
+            `;
+
+            // --- Bottom Row: Actions ---
+            const actionRow = document.createElement('div');
+            actionRow.style.display = "flex";
+            actionRow.style.justifyContent = "space-between";
+            actionRow.style.marginTop = "12px";
+            actionRow.style.paddingTop = "12px";
+            actionRow.style.borderTop = "1px solid #eee";
+
+            const viewLink = document.createElement('a');
+            viewLink.href = receipt.file_url;
+            viewLink.target = "_blank";
+            viewLink.innerHTML = "📄 View Receipt";
+            viewLink.style.color = "#007bff";
+            viewLink.style.textDecoration = "none";
+            viewLink.style.fontWeight = "bold";
+
             const delBtn = document.createElement('button');
-            delBtn.innerHTML = "X"; // Simple X character
+            delBtn.innerHTML = "🗑️ Delete"; 
             delBtn.style.backgroundColor = "transparent"; 
-            delBtn.style.color = "#aaa"; // Muted Gray as requested
+            delBtn.style.color = "#dc3545"; 
             delBtn.style.border = "none";
             delBtn.style.cursor = "pointer";
-            delBtn.style.fontSize = "1.3rem"; // Clear, clickable size
             delBtn.style.fontWeight = "bold";
-            delBtn.style.padding = "0"; // Muted text button
-            delBtn.style.flexShrink = "0"; // Don't allow it to get squished
-
+            delBtn.style.padding = "0";
+            
             delBtn.onclick = async () => {
-                if (confirm("Are you sure you want to delete this receipt mistake?")) {
+                if (confirm("Are you sure you want to delete this receipt?")) {
                     const { error: deleteError } = await db.from('receipts').delete().eq('id', receipt.id);
                     if (deleteError) {
                         alert("Could not delete: " + deleteError.message);
                     } else {
-                        flexContainer.remove(); 
+                        card.remove(); 
                     }
                 }
             };
 
-            // --- The Clickable White Card (Data Area) ---
-            const item = document.createElement('a');
-            item.href = receipt.file_url;
-            item.target = "_blank"; 
-            item.style.flex = "1"; // Uses the rest of the available width
-            item.style.display = "flex";
-            item.style.justifyContent = "space-between";
-            item.style.alignItems = "center";
-            item.style.backgroundColor = "#f8f9fa";
-            item.style.border = "1px solid #dee2e6";
-            item.style.borderRadius = "8px";
-            item.style.padding = "15px";
-            item.style.textDecoration = "none";
-            item.style.color = "#333";
-            item.innerHTML = `
-                <span style="font-size: 1rem;">📅 <strong>${dateStr}</strong></span> 
-                <span style="font-size: 0.85rem; color: #666; text-align: right;">${receipt.merchant}<br>$${receipt.amount}</span>
-            `;
-
-            // Combine the column [X] | Column [Data]
-            flexContainer.appendChild(delBtn);
-            flexContainer.appendChild(item);
-            dateList.appendChild(flexContainer);
+            actionRow.appendChild(viewLink);
+            actionRow.appendChild(delBtn);
+            
+            card.appendChild(infoRow);
+            card.appendChild(actionRow);
+            dateList.appendChild(card);
         });
 
     } catch (err) {
@@ -219,7 +225,6 @@ viewBtn.addEventListener('click', async () => {
 });
 
 // --- 7. VIEW TRIPS MODAL LOGIC ---
-// (We apply the same visual logic to the trips list for consistency!)
 const tripViewBtn = document.getElementById('btn-view-trips');
 const tripModal = document.getElementById('trip-modal');
 const closeTripBtn = document.getElementById('close-trip-modal');
@@ -248,55 +253,55 @@ tripViewBtn.addEventListener('click', async () => {
             const dateObj = new Date(trip.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // Flex container
-            const flexContainer = document.createElement('div');
-            flexContainer.style.display = "flex";
-            flexContainer.style.alignItems = "center";
-            flexContainer.style.gap = "15px";
-            flexContainer.style.marginBottom = "12px";
-            flexContainer.style.width = "100%";
+            // --- The Outer Card ---
+            const card = document.createElement('div');
+            card.style.backgroundColor = "#fff";
+            card.style.border = "1px solid #ddd";
+            card.style.borderRadius = "8px";
+            card.style.padding = "15px";
+            card.style.display = "flex";
+            card.style.flexDirection = "column";
+            card.style.boxShadow = "0 2px 5px rgba(0,0,0,0.05)";
+            
+            // --- Top Row: Information ---
+            let tollText = trip.has_toll ? `Toll: $${trip.toll_amount}` : `No Toll`;
+            const infoRow = document.createElement('div');
+            infoRow.style.display = "flex";
+            infoRow.style.justifyContent = "space-between";
+            infoRow.innerHTML = `
+                <span style="font-size: 1.1rem; color: #333;">🚗 <strong>${dateStr}</strong></span> 
+                <span style="font-size: 0.95rem; color: #666; text-align: right;"><strong>${trip.total_km} km</strong><br>${tollText}</span>
+            `;
 
-            // Muted 'X' on the far left
+            // --- Bottom Row: Actions ---
+            const actionRow = document.createElement('div');
+            actionRow.style.display = "flex";
+            actionRow.style.justifyContent = "flex-end"; // Aligns delete button to the right
+            actionRow.style.marginTop = "12px";
+            actionRow.style.paddingTop = "12px";
+            actionRow.style.borderTop = "1px solid #eee";
+
             const delBtn = document.createElement('button');
-            delBtn.innerHTML = "X"; 
+            delBtn.innerHTML = "🗑️ Delete"; 
             delBtn.style.backgroundColor = "transparent"; 
-            delBtn.style.color = "#aaa"; 
+            delBtn.style.color = "#dc3545"; 
             delBtn.style.border = "none";
             delBtn.style.cursor = "pointer";
-            delBtn.style.fontSize = "1.3rem"; 
             delBtn.style.fontWeight = "bold";
             delBtn.style.padding = "0";
-            delBtn.style.flexShrink = "0";
-
+            
             delBtn.onclick = async () => {
                 if (confirm("Delete this trip?")) {
                     const { error: deleteError } = await db.from('trips').delete().eq('id', trip.id);
-                    if (!deleteError) flexContainer.remove();
+                    if (!deleteError) card.remove();
                 }
             };
 
-            // White Trip Card
-            const infoBox = document.createElement('div');
-            infoBox.style.flex = "1";
-            infoBox.style.display = "flex";
-            infoBox.style.justifyContent = "space-between";
-            infoBox.style.alignItems = "center";
-            infoBox.style.backgroundColor = "#f8f9fa";
-            infoBox.style.border = "1px solid #dee2e6";
-            infoBox.style.borderRadius = "8px";
-            infoBox.style.padding = "15px";
-            infoBox.style.color = "#333";
+            actionRow.appendChild(delBtn);
             
-            let tollText = trip.has_toll ? `Toll: $${trip.toll_amount}` : `No Toll`;
-            
-            infoBox.innerHTML = `
-                <span style="font-size: 1rem;">🚗 <strong>${dateStr}</strong></span> 
-                <span style="font-size: 0.85rem; color: #666; text-align: right;">${trip.total_km} km<br>${tollText}</span>
-            `;
-
-            flexContainer.appendChild(delBtn);
-            flexContainer.appendChild(infoBox);
-            tripList.appendChild(flexContainer);
+            card.appendChild(infoRow);
+            card.appendChild(actionRow);
+            tripList.appendChild(card);
         });
 
     } catch (err) {
@@ -304,7 +309,7 @@ tripViewBtn.addEventListener('click', async () => {
     }
 });
 
-// Close Modals logic (retains &times; for panel closing)
+// Close Modals logic
 closeBtn.addEventListener('click', () => modal.style.display = 'none');
 closeTripBtn.addEventListener('click', () => tripModal.style.display = 'none');
 
