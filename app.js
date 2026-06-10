@@ -8,8 +8,8 @@ window.addEventListener("unhandledrejection", function(event) {
 });
 
 // --- 2. INITIALIZE SUPABASE ---
-const SUPABASE_URL = 'https://YOUR_URL_HERE.supabase.co';
-const SUPABASE_KEY = 'YOUR_KEY_HERE';
+const SUPABASE_URL = 'https://rkolzqzlbvmxdduxqccv.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_imJk5ynv3BYbo6QGrw2jMA_jePw2sZb';
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 3. UI LOGIC: TOLLS ---
