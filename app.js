@@ -156,7 +156,6 @@ viewBtn.addEventListener('click', async () => {
             const dateObj = new Date(receipt.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // --- The Outer Card ---
             const card = document.createElement('div');
             card.style.backgroundColor = "#fff";
             card.style.border = "1px solid #ddd";
@@ -166,7 +165,6 @@ viewBtn.addEventListener('click', async () => {
             card.style.flexDirection = "column";
             card.style.boxShadow = "0 2px 5px rgba(0,0,0,0.05)";
 
-            // --- Top Row: Information ---
             const infoRow = document.createElement('div');
             infoRow.style.display = "flex";
             infoRow.style.justifyContent = "space-between";
@@ -175,7 +173,6 @@ viewBtn.addEventListener('click', async () => {
                 <span style="font-size: 0.95rem; color: #666; text-align: right;">${receipt.merchant}<br><strong style="color: #28a745;">$${receipt.amount}</strong></span>
             `;
 
-            // --- Bottom Row: Actions ---
             const actionRow = document.createElement('div');
             actionRow.style.display = "flex";
             actionRow.style.justifyContent = "space-between";
@@ -237,7 +234,7 @@ tripViewBtn.addEventListener('click', async () => {
     try {
         const { data, error } = await db
             .from('trips')
-            .select('id, date, total_km, toll_amount, has_toll')
+            .select('id, date, start_odometer, end_odometer, total_km, toll_amount, has_toll')
             .order('date', { ascending: false });
 
         if (error) throw error;
@@ -253,7 +250,6 @@ tripViewBtn.addEventListener('click', async () => {
             const dateObj = new Date(trip.date);
             const dateStr = dateObj.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // --- The Outer Card ---
             const card = document.createElement('div');
             card.style.backgroundColor = "#fff";
             card.style.border = "1px solid #ddd";
@@ -263,20 +259,21 @@ tripViewBtn.addEventListener('click', async () => {
             card.style.flexDirection = "column";
             card.style.boxShadow = "0 2px 5px rgba(0,0,0,0.05)";
             
-            // --- Top Row: Information ---
             let tollText = trip.has_toll ? `Toll: $${trip.toll_amount}` : `No Toll`;
             const infoRow = document.createElement('div');
             infoRow.style.display = "flex";
             infoRow.style.justifyContent = "space-between";
             infoRow.innerHTML = `
-                <span style="font-size: 1.1rem; color: #333;">🚗 <strong>${dateStr}</strong></span> 
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 1.1rem; color: #333;">🚗 <strong>${dateStr}</strong></span>
+                    <span style="font-size: 0.85rem; color: #666; margin-top: 4px;">Odo: ${trip.start_odometer} &rarr; ${trip.end_odometer}</span>
+                </div>
                 <span style="font-size: 0.95rem; color: #666; text-align: right;"><strong>${trip.total_km} km</strong><br>${tollText}</span>
             `;
 
-            // --- Bottom Row: Actions ---
             const actionRow = document.createElement('div');
             actionRow.style.display = "flex";
-            actionRow.style.justifyContent = "flex-end"; // Aligns delete button to the right
+            actionRow.style.justifyContent = "flex-end"; 
             actionRow.style.marginTop = "12px";
             actionRow.style.paddingTop = "12px";
             actionRow.style.borderTop = "1px solid #eee";
