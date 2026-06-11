@@ -8,8 +8,8 @@ window.addEventListener("unhandledrejection", function(event) {
 });
 
 // --- 2. INITIALIZE SUPABASE ---
-const SUPABASE_URL = 'https://rkolzqzlbvmxdduxqccv.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_imJk5ynv3BYbo6QGrw2jMA_jePw2sZb';
+const SUPABASE_URL = 'https://YOUR_URL_HERE.supabase.co';
+const SUPABASE_KEY = 'YOUR_KEY_HERE';
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 3. UI LOGIC: TOLLS ---
@@ -32,6 +32,8 @@ tollCheckbox.addEventListener('change', (e) => {
 document.getElementById('trip-form').addEventListener('submit', async (e) => {
     e.preventDefault(); 
 
+    // NEW: Grabbing the user-selected date
+    const tripDate = document.getElementById('trip-date').value;
     const startOdo = parseInt(document.getElementById('start-odo').value);
     const endOdo = parseInt(document.getElementById('end-odo').value);
     const hasToll = tollCheckbox.checked;
@@ -49,7 +51,7 @@ document.getElementById('trip-form').addEventListener('submit', async (e) => {
     const { error } = await db
         .from('trips')
         .insert([{
-            date: new Date().toISOString(),
+            date: tripDate, // Swapped from auto-generating time to the manual date
             start_odometer: startOdo,
             end_odometer: endOdo,
             total_km: endOdo - startOdo,
