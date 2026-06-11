@@ -19,6 +19,9 @@
         <section id="trip-section" class="card">
             <h2>Log a Trip</h2>
             <form id="trip-form">
+                <label>Date of Trip:</label>
+                <input type="date" id="trip-date" required>
+
                 <label>Start Odometer:</label>
                 <input type="number" id="start-odo" required>
 
@@ -117,7 +120,7 @@
 
     </main>
 
-    <script src="app.js?v=12"></script>
+    <script src="app.js?v=13"></script>
 
     <script>
         if ('serviceWorker' in navigator) {
